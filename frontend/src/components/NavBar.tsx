@@ -1,4 +1,3 @@
-import React from 'react';
 import { Menu, Layout, Button, Space } from 'antd';
 import { DatabaseOutlined, BarChartOutlined, RobotOutlined, SettingOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/SimpleAuthContext';

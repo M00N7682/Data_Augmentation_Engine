@@ -1,4 +1,3 @@
-import React from 'react';
 import { Layout, Typography, Card, Space } from 'antd';
 
 const { Content } = Layout;

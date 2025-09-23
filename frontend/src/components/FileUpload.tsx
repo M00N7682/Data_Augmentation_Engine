@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Upload, message, Card, Button, Select, Table, Typography } from 'antd';
 import { InboxOutlined } from '@ant-design/icons';
 import { dataAPI, DataSummary } from '../services/api';

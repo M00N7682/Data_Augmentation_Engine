@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, Select, Slider, Radio, Button, InputNumber, Typography, Row, Col, Space } from 'antd';
 import { ProcessingConfig } from '../services/api';
 

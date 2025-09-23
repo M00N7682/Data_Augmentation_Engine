@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Layout, Typography, Steps, Button, message, Spin } from 'antd';
 import FileUpload from '../components/FileUpload';
 import ConfigurationPanel from '../components/ConfigurationPanel';

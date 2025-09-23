@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import { Layout, Typography, Card, Form, Input, Button, Space, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/SimpleAuthContext';
