@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu, Layout, Button, Space } from 'antd';
-import { DatabaseOutlined, BarChartOutlined, RobotOutlined, SettingOutlined, LoginOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, BarChartOutlined, RobotOutlined, SettingOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { useAuth } from '../contexts/SimpleAuthContext';
 
 const { Header } = Layout;
 
@@ -10,31 +11,37 @@ interface NavBarProps {
 }
 
 const NavBar: React.FC<NavBarProps> = ({ selectedTool, onToolSelect }) => {
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    onToolSelect(''); // 메인 페이지로 이동
+  };
+
   const menuItems = [
     {
       key: 'public-data',
       icon: <DatabaseOutlined />,
       label: '공공데이터 저장소',
+      authRequired: false,
     },
     {
       key: 'data-augmentation',
       icon: <BarChartOutlined />,
       label: 'CSV 데이터 증강 엔진',
+      authRequired: true,
     },
     {
       key: 'data-analysis',
       icon: <RobotOutlined />,
-      label: 'CSV 데이터 분석 Agent',
+      label: 'CSV 데이터 분석 Agent', 
+      authRequired: true,
     },
     {
       key: 'options',
       icon: <SettingOutlined />,
       label: '옵션',
-    },
-    {
-      key: 'login',
-      icon: <LoginOutlined />,
-      label: '로그인',
+      authRequired: false,
     },
   ];
 
@@ -66,6 +73,7 @@ const NavBar: React.FC<NavBarProps> = ({ selectedTool, onToolSelect }) => {
             type={selectedTool === item.key ? 'primary' : 'text'}
             icon={item.icon}
             onClick={() => onToolSelect(item.key)}
+            disabled={item.authRequired && !isAuthenticated}
             style={{
               height: '40px',
               fontSize: '14px',
@@ -75,6 +83,40 @@ const NavBar: React.FC<NavBarProps> = ({ selectedTool, onToolSelect }) => {
             {item.label}
           </Button>
         ))}
+        
+        {/* 로그인/로그아웃 버튼 */}
+        {isAuthenticated ? (
+          <Space>
+            <Button
+              type="text"
+              icon={<UserOutlined />}
+              style={{ height: '40px' }}
+            >
+              {user?.username}
+            </Button>
+            <Button
+              type="text"
+              icon={<LogoutOutlined />}
+              onClick={handleLogout}
+              style={{ height: '40px' }}
+            >
+              로그아웃
+            </Button>
+          </Space>
+        ) : (
+          <Button
+            type={selectedTool === 'login' ? 'primary' : 'text'}
+            icon={<LoginOutlined />}
+            onClick={() => onToolSelect('login')}
+            style={{
+              height: '40px',
+              fontSize: '14px',
+              fontWeight: selectedTool === 'login' ? 'bold' : 'normal',
+            }}
+          >
+            로그인
+          </Button>
+        )}
       </Space>
     </Header>
   );

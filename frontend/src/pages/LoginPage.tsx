@@ -1,13 +1,23 @@
-import React from 'react';
-import { Layout, Typography, Card, Form, Input, Button, Space } from 'antd';
+import React, { useState } from 'react';
+import { Layout, Typography, Card, Form, Input, Button, Space, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useAuth } from '../contexts/SimpleAuthContext';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
 const LoginPage: React.FC = () => {
-  const onFinish = (values: any) => {
-    console.log('로그인 시도:', values);
+  const { login, isLoading } = useAuth();
+  const [form] = Form.useForm();
+
+  const onFinish = async (values: any) => {
+    try {
+      await login(values.username, values.password);
+      message.success('로그인 성공!');
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.detail || '로그인에 실패했습니다.';
+      message.error(errorMessage);
+    }
   };
 
   return (
@@ -21,8 +31,12 @@ const LoginPage: React.FC = () => {
         </div>
 
         <Form
+          form={form}
           name="login"
-          initialValues={{ remember: true }}
+          initialValues={{ 
+            username: 'admin',
+            password: 'admin123'
+          }}
           onFinish={onFinish}
           layout="vertical"
         >
@@ -49,8 +63,14 @@ const LoginPage: React.FC = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button type="primary" htmlType="submit" size="large" block>
-              로그인
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              size="large" 
+              block
+              loading={isLoading}
+            >
+              {isLoading ? '로그인 중...' : '로그인'}
             </Button>
           </Form.Item>
         </Form>

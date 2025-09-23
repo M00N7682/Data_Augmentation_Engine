@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, Typography } from 'antd';
+import { useAuth } from '../contexts/SimpleAuthContext';
 import NavBar from '../components/NavBar';
 import DataAugmentationPage from './DataAugmentationPage';
 import PublicDataPage from './PublicDataPage';
@@ -12,12 +13,20 @@ const { Title, Paragraph } = Typography;
 
 const MainPage: React.FC = () => {
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
+  const { isAuthenticated, user } = useAuth();
 
   const handleToolSelect = (tool: string) => {
     setSelectedTool(tool);
   };
 
   const renderSelectedTool = () => {
+    // 로그인이 필요한 도구들
+    const authRequiredTools = ['data-augmentation', 'data-analysis'];
+    
+    if (authRequiredTools.includes(selectedTool || '') && !isAuthenticated) {
+      return <LoginPage />;
+    }
+
     switch (selectedTool) {
       case 'public-data':
         return <PublicDataPage />;
@@ -39,6 +48,11 @@ const MainPage: React.FC = () => {
               <Title level={3} style={{ color: '#666', fontWeight: 'normal', marginBottom: '32px' }}>
                 Data-Driven Decision-making Bureau
               </Title>
+              {isAuthenticated && (
+                <div style={{ marginBottom: '20px', padding: '10px', background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '6px' }}>
+                  <span style={{ color: '#52c41a' }}>✅ {user?.username}님으로 로그인됨</span>
+                </div>
+              )}
               <Paragraph style={{ fontSize: '18px', lineHeight: '1.8', marginBottom: '40px' }}>
                 공공데이터 저장소, CSV 데이터 증강 엔진, AI 분석 Agent 등 다양한 데이터 분석 도구를 제공합니다.
                 <br />

@@ -10,10 +10,43 @@ const apiClient = axios.create({
   },
 });
 
+// 인증 토큰 관리
+const getAuthToken = (): string | null => {
+  return localStorage.getItem('auth_token');
+};
+
+const setAuthToken = (token: string): void => {
+  localStorage.setItem('auth_token', token);
+  // axios 기본 헤더에 토큰 추가
+  apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+};
+
+const removeAuthToken = (): void => {
+  localStorage.removeItem('auth_token');
+  delete apiClient.defaults.headers.common['Authorization'];
+};
+
+// 앱 초기화 시 토큰 확인
+const initializeAuth = (): void => {
+  const token = getAuthToken();
+  if (token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+};
+
+// 앱 시작시 인증 초기화
+initializeAuth();
+
 // 응답 인터셉터
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (error.response?.status === 401) {
+      // 인증 실패 시 토큰 삭제 및 로그인 페이지로 리다이렉트
+      removeAuthToken();
+      window.location.href = '/login';
+    }
+    
     if (error.response) {
       // 서버 응답 에러
       console.error('API Error:', error.response.data);
@@ -27,6 +60,33 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// 인터페이스 정의
+export interface User {
+  id: number;
+  email: string;
+  username: string;
+  full_name?: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export interface UserCreate {
+  email: string;
+  username: string;
+  password: string;
+  full_name?: string;
+}
+
+export interface UserLogin {
+  username: string;
+  password: string;
+}
+
+export interface Token {
+  access_token: string;
+  token_type: string;
+}
 
 export interface DataSummary {
   total_rows: number;
@@ -62,6 +122,44 @@ export interface ProcessingResponse {
   processing_time: number;
   summary: DataSummary;
 }
+
+export const authAPI = {
+  // 회원가입
+  register: async (userData: UserCreate): Promise<User> => {
+    const response = await apiClient.post('/api/auth/register', userData);
+    return response.data;
+  },
+
+  // 로그인
+  login: async (credentials: UserLogin): Promise<Token> => {
+    const response = await apiClient.post('/api/auth/login', credentials);
+    const token = response.data;
+    setAuthToken(token.access_token);
+    return token;
+  },
+
+  // 로그아웃
+  logout: async (): Promise<void> => {
+    await apiClient.post('/api/auth/logout');
+    removeAuthToken();
+  },
+
+  // 현재 사용자 정보 조회
+  getCurrentUser: async (): Promise<User> => {
+    const response = await apiClient.get('/api/auth/me');
+    return response.data;
+  },
+
+  // 인증 상태 확인
+  isAuthenticated: (): boolean => {
+    return getAuthToken() !== null;
+  },
+
+  // 토큰 관리 함수들 export
+  getToken: getAuthToken,
+  setToken: setAuthToken,
+  removeToken: removeAuthToken,
+};
 
 export const dataAPI = {
   // 파일 업로드

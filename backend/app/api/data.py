@@ -1,16 +1,20 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Query
+from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Depends
 from fastapi.responses import StreamingResponse
 from typing import Dict, Any, Optional
 import io
 
-from ..models.schemas import ProcessingRequest, ProcessingResponse, DataSummary, VisualizationRequest
+from ..models.schemas import ProcessingRequest, ProcessingResponse, DataSummary, VisualizationRequest, User
 from ..services.data_processing import data_service
+from .auth import get_current_user
 
 router = APIRouter(prefix="/api/data", tags=["data"])
 
 @router.post("/upload", response_model=Dict[str, Any])
-async def upload_file(file: UploadFile = File(...)):
-    """CSV 파일 업로드"""
+async def upload_file(
+    file: UploadFile = File(...), 
+    current_user: User = Depends(get_current_user)
+):
+    """CSV 파일 업로드 (로그인 필요)"""
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="CSV 파일만 업로드 가능합니다.")
     
@@ -22,8 +26,11 @@ async def upload_file(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"파일 업로드 중 오류 발생: {str(e)}")
 
 @router.post("/process", response_model=Dict[str, Any])
-async def process_data(request: ProcessingRequest):
-    """데이터 전처리 및 증강 실행"""
+async def process_data(
+    request: ProcessingRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """데이터 전처리 및 증강 실행 (로그인 필요)"""
     try:
         config = {
             'preprocessing_config': request.preprocessing_config.dict(),
@@ -37,9 +44,10 @@ async def process_data(request: ProcessingRequest):
 @router.get("/processed", response_model=Dict[str, Any])
 async def get_processed_data(
     page: int = Query(0, ge=0),
-    page_size: int = Query(100, ge=1, le=1000)
+    page_size: int = Query(100, ge=1, le=1000),
+    current_user: User = Depends(get_current_user)
 ):
-    """처리된 데이터 조회 (페이징)"""
+    """처리된 데이터 조회 (페이징) (로그인 필요)"""
     try:
         result = data_service.get_processed_data(page, page_size)
         return result
@@ -47,8 +55,11 @@ async def get_processed_data(
         raise HTTPException(status_code=500, detail=f"데이터 조회 중 오류 발생: {str(e)}")
 
 @router.get("/download")
-async def download_data(encoding: str = Query("utf-8", regex="^(utf-8|cp949|utf-8-bom)$")):
-    """증강된 데이터 다운로드"""
+async def download_data(
+    encoding: str = Query("utf-8", regex="^(utf-8|cp949|utf-8-bom)$"),
+    current_user: User = Depends(get_current_user)
+):
+    """증강된 데이터 다운로드 (로그인 필요)"""
     try:
         csv_bytes = data_service.download_data(encoding)
         
@@ -69,8 +80,11 @@ async def download_data(encoding: str = Query("utf-8", regex="^(utf-8|cp949|utf-
         raise HTTPException(status_code=500, detail=f"다운로드 중 오류 발생: {str(e)}")
 
 @router.post("/visualize", response_model=Dict[str, Any])
-async def create_visualization(request: VisualizationRequest):
-    """시각화 생성"""
+async def create_visualization(
+    request: VisualizationRequest,
+    current_user: User = Depends(get_current_user)
+):
+    """시각화 생성 (로그인 필요)"""
     try:
         result = data_service.generate_visualization(
             request.column_name, 
@@ -81,8 +95,8 @@ async def create_visualization(request: VisualizationRequest):
         raise HTTPException(status_code=500, detail=f"시각화 생성 중 오류 발생: {str(e)}")
 
 @router.get("/statistics", response_model=Dict[str, Any])
-async def get_statistics():
-    """통계 정보 조회"""
+async def get_statistics(current_user: User = Depends(get_current_user)):
+    """통계 정보 조회 (로그인 필요)"""
     try:
         result = data_service.get_statistics()
         return result
@@ -90,8 +104,8 @@ async def get_statistics():
         raise HTTPException(status_code=500, detail=f"통계 조회 중 오류 발생: {str(e)}")
 
 @router.get("/columns", response_model=Dict[str, Any])
-async def get_columns():
-    """컬럼 정보 조회"""
+async def get_columns(current_user: User = Depends(get_current_user)):
+    """컬럼 정보 조회 (로그인 필요)"""
     try:
         if data_service.current_data is None:
             raise HTTPException(status_code=400, detail="데이터가 로드되지 않았습니다.")

@@ -4,13 +4,14 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 from .api.data import router as data_router
+from .api.auth import router as auth_router
 
 def create_app() -> FastAPI:
     """FastAPI 앱 생성 및 설정"""
     
     app = FastAPI(
         title="Data Augmentation API",
-        description="CSV 데이터 증강 엔진 API",
+        description="CSV 데이터 증강 엔진 API - 인증 시스템 포함",
         version="1.0.0",
         docs_url="/docs",
         redoc_url="/redoc"
@@ -26,15 +27,17 @@ def create_app() -> FastAPI:
     )
     
     # API 라우터 등록
+    app.include_router(auth_router)  # 인증 라우터 추가
     app.include_router(data_router)
     
     # 헬스 체크 엔드포인트
     @app.get("/")
     async def root():
         return {
-            "message": "Data Augmentation API", 
+            "message": "Data Augmentation API with Authentication", 
             "version": "1.0.0",
-            "docs": "/docs"
+            "docs": "/docs",
+            "auth_info": "Basic admin account - username: admin, password: admin123"
         }
     
     @app.get("/health")
