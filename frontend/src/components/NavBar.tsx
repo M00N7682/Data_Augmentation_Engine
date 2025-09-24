@@ -54,13 +54,17 @@ const NavBar: React.FC<NavBarProps> = ({ selectedTool, onToolSelect }) => {
       justifyContent: 'space-between'
     }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <h1 style={{ 
-          margin: 0, 
-          color: '#1890ff', 
-          fontSize: '24px',
-          fontWeight: 'bold',
-          marginRight: '40px'
-        }}>
+        <h1 
+          style={{ 
+            margin: 0, 
+            color: '#1890ff', 
+            fontSize: '24px',
+            fontWeight: 'bold',
+            marginRight: '40px',
+            cursor: 'pointer'
+          }}
+          onClick={() => onToolSelect('')}
+        >
           📊 DDDB Platform
         </h1>
       </div>

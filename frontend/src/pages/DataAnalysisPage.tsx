@@ -11,7 +11,7 @@ const DataAnalysisPage: React.FC = () => {
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Title level={2}>🤖 CSV 데이터 분석 Agent</Title>
           <Paragraph type="secondary">
-            AI 기반으로 CSV 데이터를 자동 분석하고 인사이트를 제공합니다.
+            Langchain 기반으로 CSV 데이터를 자동 분석하고 인사이트를 제공합니다.
           </Paragraph>
         </div>
 
