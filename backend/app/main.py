@@ -5,6 +5,7 @@ from fastapi.responses import FileResponse
 
 from .api.data import router as data_router
 from .api.auth import router as auth_router
+from .api.analysis import router as analysis_router
 
 def create_app() -> FastAPI:
     """FastAPI 앱 생성 및 설정"""
@@ -29,6 +30,7 @@ def create_app() -> FastAPI:
     # API 라우터 등록
     app.include_router(auth_router)  # 인증 라우터 추가
     app.include_router(data_router)
+    app.include_router(analysis_router)  # 분석 라우터 추가
     
     # 헬스 체크 엔드포인트
     @app.get("/")

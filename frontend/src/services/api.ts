@@ -244,4 +244,55 @@ export const dataAPI = {
   },
 };
 
+// Analysis API 추가
+export const analysisAPI = {
+  // CSV 파일 업로드 (분석용)
+  uploadCSVForAnalysis: async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    const response = await apiClient.post('/api/analysis/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 60000, // 1분
+    });
+    
+    return response.data;
+  },
+
+  // 자연어 쿼리 분석
+  analyzeQuery: async (query: string) => {
+    const formData = new FormData();
+    formData.append('query', query);
+    
+    const response = await apiClient.post('/api/analysis/query', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      timeout: 120000, // 2분
+    });
+    
+    return response.data;
+  },
+
+  // 추천 질문 조회
+  getSuggestions: async () => {
+    const response = await apiClient.get('/api/analysis/suggestions');
+    return response.data;
+  },
+
+  // 데이터 정보 조회
+  getDataInfo: async () => {
+    const response = await apiClient.get('/api/analysis/data-info');
+    return response.data;
+  },
+
+  // 분석 데이터 삭제
+  clearAnalysisData: async () => {
+    const response = await apiClient.delete('/api/analysis/clear');
+    return response.data;
+  },
+};
+
 export default apiClient;

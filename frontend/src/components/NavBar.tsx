@@ -65,7 +65,7 @@ const NavBar: React.FC<NavBarProps> = ({ selectedTool, onToolSelect }) => {
           }}
           onClick={() => onToolSelect('')}
         >
-          📊 DDDB Platform
+          🏛️ D-Craft
         </h1>
       </div>
       

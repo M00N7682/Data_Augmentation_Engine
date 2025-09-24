@@ -3,10 +3,11 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
+import os
 from ..models.schemas import User, UserCreate
 
 # 설정
-SECRET_KEY = "your-secret-key-here"  # 실제 환경에서는 환경변수로 관리
+SECRET_KEY = os.getenv("JWT_SECRET_KEY", "your-secret-key-here-change-this-in-production")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 

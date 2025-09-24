@@ -55,7 +55,7 @@ const MainPage: React.FC = () => {
                 marginBottom: '16px',
                 fontWeight: '700'
               }}>
-                🏛️ DDDB Platform
+                🏛️ D-Craft
               </Title>
               <Title level={2} style={{ 
                 color: 'rgba(255, 255, 255, 0.9)', 
@@ -63,7 +63,7 @@ const MainPage: React.FC = () => {
                 marginBottom: '32px',
                 fontSize: '1.5em'
               }}>
-                Data-Driven Decision-making Bureau
+                데이터, 누구나 쉽게. 디크래프트에서 시작하세요.
               </Title>
               {isAuthenticated && (
                 <div style={{ marginBottom: '20px', padding: '12px 24px', background: 'rgba(255, 255, 255, 0.2)', borderRadius: '25px', display: 'inline-block' }}>
