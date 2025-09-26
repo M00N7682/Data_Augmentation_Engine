@@ -107,18 +107,31 @@ const NavBar: React.FC<NavBarProps> = ({ selectedTool, onToolSelect }) => {
             </Button>
           </Space>
         ) : (
-          <Button
-            type={selectedTool === 'login' ? 'primary' : 'text'}
-            icon={<LoginOutlined />}
-            onClick={() => onToolSelect('login')}
-            style={{
-              height: '40px',
-              fontSize: '14px',
-              fontWeight: selectedTool === 'login' ? 'bold' : 'normal',
-            }}
-          >
-            로그인
-          </Button>
+          <Space>
+            <Button
+              type={selectedTool === 'login' ? 'primary' : 'text'}
+              icon={<LoginOutlined />}
+              onClick={() => onToolSelect('login')}
+              style={{
+                height: '40px',
+                fontSize: '14px',
+                fontWeight: selectedTool === 'login' ? 'bold' : 'normal',
+              }}
+            >
+              로그인
+            </Button>
+            <Button
+              type={selectedTool === 'register' ? 'primary' : 'default'}
+              onClick={() => onToolSelect('register')}
+              style={{
+                height: '40px',
+                fontSize: '14px',
+                fontWeight: selectedTool === 'register' ? 'bold' : 'normal',
+              }}
+            >
+              회원가입
+            </Button>
+          </Space>
         )}
       </Space>
     </Header>

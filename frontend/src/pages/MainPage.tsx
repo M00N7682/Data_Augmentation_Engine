@@ -8,6 +8,7 @@ import PublicDataPage from './PublicDataPage';
 import DataAnalysisPage from './DataAnalysisPage';
 import OptionsPage from './OptionsPage';
 import LoginPage from './LoginPage';
+import RegisterPage from './RegisterPage';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -25,7 +26,7 @@ const MainPage: React.FC = () => {
     const authRequiredTools = ['data-augmentation', 'data-analysis'];
     
     if (authRequiredTools.includes(selectedTool || '') && !isAuthenticated) {
-      return <LoginPage />;
+      return <LoginPage onNavigateToRegister={() => setSelectedTool('register')} />;
     }
 
     switch (selectedTool) {
@@ -38,7 +39,9 @@ const MainPage: React.FC = () => {
       case 'options':
         return <OptionsPage />;
       case 'login':
-        return <LoginPage />;
+        return <LoginPage onNavigateToRegister={() => setSelectedTool('register')} />;
+      case 'register':
+        return <RegisterPage onNavigateToLogin={() => setSelectedTool('login')} />;
       default:
         return (
           <Content style={{ padding: '0', minHeight: 'calc(100vh - 64px)' }}>
@@ -93,21 +96,38 @@ const MainPage: React.FC = () => {
                   시작하기
                 </Button>
                 {!isAuthenticated && (
-                  <Button 
-                    size="large" 
-                    style={{ 
-                      height: '48px', 
-                      fontSize: '16px', 
-                      borderRadius: '24px', 
-                      padding: '0 32px',
-                      background: 'rgba(255, 255, 255, 0.2)',
-                      border: '1px solid rgba(255, 255, 255, 0.5)',
-                      color: 'white'
-                    }}
-                    onClick={() => handleToolSelect('login')}
-                  >
-                    로그인
-                  </Button>
+                  <>
+                    <Button 
+                      size="large" 
+                      style={{ 
+                        height: '48px', 
+                        fontSize: '16px', 
+                        borderRadius: '24px', 
+                        padding: '0 32px',
+                        background: 'rgba(255, 255, 255, 0.2)',
+                        border: '1px solid rgba(255, 255, 255, 0.5)',
+                        color: 'white'
+                      }}
+                      onClick={() => handleToolSelect('login')}
+                    >
+                      로그인
+                    </Button>
+                    <Button 
+                      size="large" 
+                      style={{ 
+                        height: '48px', 
+                        fontSize: '16px', 
+                        borderRadius: '24px', 
+                        padding: '0 32px',
+                        background: 'white',
+                        border: '1px solid white',
+                        color: '#667eea'
+                      }}
+                      onClick={() => handleToolSelect('register')}
+                    >
+                      회원가입
+                    </Button>
+                  </>
                 )}
               </Space>
             </div>
@@ -357,9 +377,16 @@ const MainPage: React.FC = () => {
                       type="primary" 
                       size="large" 
                       style={{ height: '48px', fontSize: '16px', borderRadius: '24px', padding: '0 32px' }}
+                      onClick={() => handleToolSelect('register')}
+                    >
+                      회원가입하기
+                    </Button>
+                    <Button 
+                      size="large" 
+                      style={{ height: '48px', fontSize: '16px', borderRadius: '24px', padding: '0 32px' }}
                       onClick={() => handleToolSelect('login')}
                     >
-                      로그인하기
+                      로그인
                     </Button>
                     <Button 
                       size="large" 

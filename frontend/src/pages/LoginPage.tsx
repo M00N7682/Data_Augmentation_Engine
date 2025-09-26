@@ -5,7 +5,11 @@ import { useAuth } from '../contexts/SimpleAuthContext';
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
-const LoginPage: React.FC = () => {
+interface LoginPageProps {
+  onNavigateToRegister?: () => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToRegister }) => {
   const { login, isLoading } = useAuth();
   const [form] = Form.useForm();
 
@@ -77,7 +81,12 @@ const LoginPage: React.FC = () => {
         <div style={{ textAlign: 'center' }}>
           <Space direction="vertical">
             <Button type="link">비밀번호 찾기</Button>
-            <Button type="link">회원가입</Button>
+            <Button 
+              type="link"
+              onClick={onNavigateToRegister}
+            >
+              회원가입
+            </Button>
           </Space>
         </div>
       </Card>
