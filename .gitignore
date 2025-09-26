@@ -11,3 +11,6 @@ __pycache__/
 # Build
 build/
 dist/
+
+# Tickets
+Tickets.txt

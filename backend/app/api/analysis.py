@@ -10,8 +10,15 @@ from .auth import get_current_user
 
 router = APIRouter(prefix="/api/analysis", tags=["analysis"])
 
-# 글로벌 분석 에이전트 인스턴스
-analysis_agent = CSVAnalysisAgent()
+# Lazy loading을 위한 글로벌 변수
+analysis_agent = None
+
+def get_analysis_agent():
+    """분석 에이전트 인스턴스를 lazy loading으로 가져오기"""
+    global analysis_agent
+    if analysis_agent is None:
+        analysis_agent = CSVAnalysisAgent()
+    return analysis_agent
 
 # 사용자별 세션 매핑 (사용자 ID -> 세션 ID)
 user_sessions: Dict[str, str] = {}
@@ -36,18 +43,18 @@ async def upload_csv_for_analysis(
         # 기존 세션이 있으면 데이터 삭제
         if current_user.username in user_sessions:
             old_session_id = user_sessions[current_user.username]
-            analysis_agent.clear_session_data(old_session_id)
+            get_analysis_agent().clear_session_data(old_session_id)
         
         # 새 세션 ID 생성
         session_id = f"{current_user.username}_{uuid.uuid4().hex[:8]}"
         user_sessions[current_user.username] = session_id
         
         # CSV 데이터 로드
-        result = analysis_agent.load_csv_data(session_id, content)
+        result = get_analysis_agent().load_csv_data(session_id, content)
         
         if result["success"]:
             # 추천 질문 생성
-            suggestions = analysis_agent.get_suggested_queries(session_id)
+            suggestions = get_analysis_agent().get_suggested_queries(session_id)
             result["suggested_queries"] = suggestions
             result["session_id"] = session_id
             result["filename"] = file.filename
@@ -76,7 +83,7 @@ async def analyze_data_query(
     
     try:
         # 분석 실행
-        result = analysis_agent.analyze_query(session_id, query.strip())
+        result = get_analysis_agent().analyze_query(session_id, query.strip())
         
         if result["success"]:
             result["query"] = query
@@ -97,7 +104,7 @@ async def get_query_suggestions(
         return {"suggestions": []}
     
     session_id = user_sessions[current_user.username]
-    suggestions = analysis_agent.get_suggested_queries(session_id)
+    suggestions = get_analysis_agent().get_suggested_queries(session_id)
     
     return {"suggestions": suggestions}
 
@@ -111,7 +118,7 @@ async def get_current_data_info(
         raise HTTPException(status_code=404, detail="업로드된 데이터가 없습니다.")
     
     session_id = user_sessions[current_user.username]
-    data_info = analysis_agent.get_data_info(session_id)
+    data_info = get_analysis_agent().get_data_info(session_id)
     
     if not data_info:
         raise HTTPException(status_code=404, detail="데이터 정보를 찾을 수 없습니다.")
@@ -126,7 +133,7 @@ async def clear_analysis_data(
     
     if current_user.username in user_sessions:
         session_id = user_sessions[current_user.username]
-        analysis_agent.clear_session_data(session_id)
+        get_analysis_agent().clear_session_data(session_id)
         del user_sessions[current_user.username]
         
         return {"success": True, "message": "분석 데이터가 삭제되었습니다."}

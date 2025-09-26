@@ -5,10 +5,21 @@ from plotly.utils import PlotlyJSONEncoder
 import json
 import os
 from typing import Dict, Any, Optional, List
-from langchain_openai import OpenAI
-from langchain.agents import create_pandas_dataframe_agent
+from dotenv import load_dotenv
+import pathlib
+
+# .env 파일을 절대 경로로 로드
+backend_dir = pathlib.Path(__file__).parent.parent.parent
+env_path = backend_dir / '.env'
+load_dotenv(dotenv_path=env_path)
+
+# 추가적으로 현재 디렉토리에서도 시도
+load_dotenv()
+
+from langchain_openai import ChatOpenAI
+from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain.agents.agent_types import AgentType
-from langchain.callbacks import get_openai_callback
+from langchain_community.callbacks import get_openai_callback
 import tempfile
 import io
 import base64
@@ -19,10 +30,10 @@ class CSVAnalysisAgent:
         if not self.openai_api_key:
             raise ValueError("OPENAI_API_KEY environment variable is not set")
         
-        self.llm = OpenAI(
+        self.llm = ChatOpenAI(
             temperature=0.1,
             openai_api_key=self.openai_api_key,
-            model_name="gpt-3.5-turbo-instruct"
+            model="gpt-4o"  # 최신 모델로 변경
         )
         
         # 세션별 데이터 저장
@@ -67,14 +78,15 @@ class CSVAnalysisAgent:
         df = self.session_data[session_id]
         
         try:
-            # LangChain Agent 생성
+            # LangChain Agent 생성 (Python REPL 활성화)
             agent = create_pandas_dataframe_agent(
                 llm=self.llm,
                 df=df,
                 verbose=True,
                 agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
                 handle_parsing_errors=True,
-                max_iterations=5
+                max_iterations=5,
+                allow_dangerous_code=True  # Python REPL 기능 활성화
             )
             
             # 한국어 프롬프트 개선
@@ -92,8 +104,13 @@ class CSVAnalysisAgent:
             답변 형식: 분석 결과를 문장으로 설명하고, 필요시 주요 수치나 발견사항을 포함해주세요.
             """
             
-            # API 사용량 추적
-            with get_openai_callback() as cb:
+            # API 사용량 추적 (최신 버전에서는 invoke 사용)
+            try:
+                result = agent.invoke({"input": enhanced_query})
+                if isinstance(result, dict):
+                    result = result.get("output", str(result))
+            except Exception:
+                # Fallback to older method
                 result = agent.run(enhanced_query)
                 
             # 시각화가 필요한지 판단하고 차트 생성
@@ -104,8 +121,8 @@ class CSVAnalysisAgent:
                 "response": result,
                 "chart_data": chart_data,
                 "api_usage": {
-                    "total_tokens": cb.total_tokens,
-                    "total_cost": cb.total_cost
+                    "total_tokens": 0,  # 추후 구현
+                    "total_cost": 0.0   # 추후 구현
                 }
             }
             
