@@ -1,12 +1,18 @@
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.io as pio
 from plotly.utils import PlotlyJSONEncoder
 import json
 import os
 from typing import Dict, Any, Optional, List
 from dotenv import load_dotenv
 import pathlib
+import matplotlib
+matplotlib.use('Agg')  # GUI 없는 백엔드 사용
+
+# Plotly 렌더러를 JSON 전용으로 설정 (GUI 창 방지)
+pio.renderers.default = "json"
 
 # .env 파일을 절대 경로로 로드
 backend_dir = pathlib.Path(__file__).parent.parent.parent
